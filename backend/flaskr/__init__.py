@@ -89,7 +89,7 @@ def create_app(test_config=None):
     This removal will persist in the database and when you refresh the page. 
     '''
 
-    @app.route('/questions/<question_id>', methods=['DELETE'])
+    @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_question(question_id):
         not_found = False
         try:
@@ -146,7 +146,7 @@ def create_app(test_config=None):
     Try using the word "title" to start. 
     '''
 
-    @app.route('/questions/<search_term>', methods=['POST'])
+    @app.route('/questions/<string:search_term>', methods=['POST'])
     def search_question(search_term):
         not_found = False
         try:
@@ -164,7 +164,7 @@ def create_app(test_config=None):
             if not_found:
                 abort(404)
             else:
-                abort(400)
+                abort(422)
 
         return jsonify({'success': True,
                         'questions': questions,
@@ -181,7 +181,29 @@ def create_app(test_config=None):
     category to be shown. 
     '''
 
-    
+    @app.route('/categories/<int:category_id>/questions')
+    def get_questions_by_category(category_id):
+        not_found = False
+        try:
+            questions = Question.query.filter_by(category=category_id).all()
+            total_q = len(questions)
+            if total_q == 0:
+                not_found = True
+                raise Exception(f'Questions for category with id {category_id} not found')
+
+            questions = [question.format() for question in questions]
+
+        except Exception:
+            if not_found:
+                abort(404)
+            else:
+                abort(422)
+
+        return jsonify({'success': True,
+                        'questions': questions,
+                        'total_questions': total_q,
+                        'current_category': category_id
+                        })
 
     '''
     @TODO: 
@@ -194,6 +216,36 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not. 
     '''
+
+    @app.route('/quizzes', methods=['POST'])
+    def get_quiz_questions():
+        data = request.get_json()
+
+        prev_qs_ids = data.get('previous_questions', None)
+        quiz_cat = data.get('quiz_category', None)
+
+        if prev_qs_ids is None or quiz_cat is None:
+            abort(400)
+
+        try:
+            cat_id = quiz_cat['id']
+            if cat_id == 0:
+                questions = [question.format() for question in Question.query.all() if question.id not in prev_qs_ids]
+            else:
+                questions = [question.format() for question in Question.query.filter_by(category=cat_id).all()
+                             if question.id not in prev_qs_ids]
+
+            if len(questions) == 0:
+                return jsonify({'success': True})
+
+            question = random.choice(questions)
+
+        except:
+            abort(422)
+
+        return jsonify({'success': True,
+                        'question': question
+                        })
 
     '''
     @TODO: 
