@@ -91,14 +91,19 @@ def create_app(test_config=None):
 
     @app.route('/questions/<question_id>', methods=['DELETE'])
     def delete_question(question_id):
+        not_found = False
         try:
             question = Question.query.filter_by(id=question_id).one_or_none()
             if question is None:
-                abort(404)
+                not_found = True
+                raise Exception(f'question {question_id} not found')
 
             question.delete()
-        except:
-            abort(422)
+        except Exception:
+            if not_found:
+                abort(404)
+            else:
+                abort(422)
 
         return jsonify({'success': True})
 
@@ -141,7 +146,31 @@ def create_app(test_config=None):
     Try using the word "title" to start. 
     '''
 
-    
+    @app.route('/questions/<search_term>', methods=['POST'])
+    def search_question(search_term):
+        not_found = False
+        try:
+            questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).order_by(Question.id).all()
+            total_q = len(questions)
+
+            if total_q == 0:
+                not_found = True
+                raise Exception(f'no questions with search term: "{search_term}" found')
+
+            questions = [question.format() for question in questions]
+            current_cat = questions[0]['category']
+
+        except Exception:
+            if not_found:
+                abort(404)
+            else:
+                abort(400)
+
+        return jsonify({'success': True,
+                        'questions': questions,
+                        'total_questions': total_q,
+                        'current_category': current_cat
+                        })
 
     '''
     @TODO: 
@@ -151,6 +180,8 @@ def create_app(test_config=None):
     categories in the left column will cause only questions of that 
     category to be shown. 
     '''
+
+    
 
     '''
     @TODO: 
