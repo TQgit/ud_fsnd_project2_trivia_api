@@ -228,10 +228,10 @@ EXAMPLE RETURN
 EXAMPLE REQUEST BODY
 
 {
-        question: 'Why?',
-        answer: 'Because',
-        difficulty: 2,
-        category: 1
+        'question': 'Why?',
+        'answer': 'Because',
+        'difficulty': 2,
+        'category': 1
 }
 ```
 ```
@@ -325,8 +325,8 @@ EXAMPLE RETURN
 EXAMPLE REQUEST BODY
 
 {
-previous_questions: [21, 22],
-quiz_category: {type: "Science", id: "1"}
+'previous_questions': [21, 22],
+'quiz_category': {'type': "Science", 'id': "1"}
 }
 ```
 ```

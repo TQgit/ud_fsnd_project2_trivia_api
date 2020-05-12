@@ -1,6 +1,4 @@
-import os
 from flask import Flask, request, abort, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
 
@@ -120,6 +118,8 @@ def create_app(test_config=None):
     def get_questions_by_category(category_id):
         not_found = False
         try:
+            if category_id > 99:
+                raise Exception(f'{category_id} must be below 100')
             questions = Question.query.filter_by(category=category_id).all()
             total_q = len(questions)
             if total_q == 0:
