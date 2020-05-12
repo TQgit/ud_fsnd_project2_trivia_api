@@ -22,6 +22,7 @@ def create_app(test_config=None):
     '''
     @TODO: Use the after_request decorator to set Access-Control-Allow
     '''
+
     @app.after_request
     def after_request(response):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
@@ -56,6 +57,7 @@ def create_app(test_config=None):
     ten questions per page and pagination at the bottom of the screen for three pages.
     Clicking on the page numbers should update the questions. 
     '''
+
     @app.route('/questions')
     def get_questions():
         page = request.args.get('page', 1, type=int)
@@ -87,7 +89,18 @@ def create_app(test_config=None):
     This removal will persist in the database and when you refresh the page. 
     '''
 
-    
+    @app.route('/questions/<question_id>', methods=['DELETE'])
+    def delete_question(question_id):
+        try:
+            question = Question.query.filter_by(id=question_id).one_or_none()
+            if question is None:
+                abort(404)
+
+            question.delete()
+        except:
+            abort(422)
+
+        return jsonify({'success': True})
 
     '''
     @TODO: 
@@ -100,6 +113,23 @@ def create_app(test_config=None):
     of the questions list in the "List" tab.  
     '''
 
+    @app.route('/questions', methods=['POST'])
+    def add_question():
+        try:
+            data = request.get_json()
+
+            question = data['question']
+            answer = data['answer']
+            difficulty = data['difficulty']
+            category = data['category']
+
+            new_question = Question(question=question, answer=answer, difficulty=difficulty, category=category)
+            new_question.insert()
+        except:
+            abort(400)
+
+        return jsonify({'success': True})
+
     '''
     @TODO: 
     Create a POST endpoint to get questions based on a search term. 
@@ -110,6 +140,8 @@ def create_app(test_config=None):
     only question that include that string within their question. 
     Try using the word "title" to start. 
     '''
+
+    
 
     '''
     @TODO: 
