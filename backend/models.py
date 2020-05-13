@@ -2,7 +2,8 @@ from sqlalchemy import Column, String, Integer
 from flask_sqlalchemy import SQLAlchemy
 
 database_name = "trivia"
-database_path = "postgres://postgres:demo@{}/{}".format('localhost:5432', database_name)
+database_path = "postgres://postgres:demo@{}/{}".format('localhost:5432',
+                                                        database_name)
 
 db = SQLAlchemy()
 

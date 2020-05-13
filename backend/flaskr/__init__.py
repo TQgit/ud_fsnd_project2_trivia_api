@@ -22,7 +22,8 @@ def create_app(test_config=None):
 
     @app.route('/categories')
     def get_categories():
-        categories = {str(category.id): category.type for category in Category.query.order_by(Category.id).all()}
+        categories = {str(category.id): category.type for category in
+                      Category.query.order_by(Category.id).all()}
 
         if len(categories) == 0:
             abort(404)
@@ -40,7 +41,8 @@ def create_app(test_config=None):
         total_q = len(questions)
 
         questions = [question.format() for question in questions[start:end]]
-        categories = {str(category.id): category.type for category in Category.query.order_by(Category.id).all()}
+        categories = {str(category.id): category.type for category in
+                      Category.query.order_by(Category.id).all()}
 
         if len(questions) == 0 or len(categories) == 0:
             abort(404)
@@ -81,9 +83,10 @@ def create_app(test_config=None):
             difficulty = data['difficulty']
             category = data['category']
 
-            new_question = Question(question=question, answer=answer, difficulty=difficulty, category=category)
+            new_question = Question(question=question, answer=answer,
+                                    difficulty=difficulty, category=category)
             new_question.insert()
-        except:
+        except Exception:
             abort(400)
 
         return jsonify({'success': True})
@@ -92,12 +95,15 @@ def create_app(test_config=None):
     def search_question(search_term):
         not_found = False
         try:
-            questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).order_by(Question.id).all()
+            questions = Question.query.filter(
+                Question.question.ilike(f'%{search_term}%')).order_by(
+                Question.id).all()
             total_q = len(questions)
 
             if total_q == 0:
                 not_found = True
-                raise Exception(f'no questions with search term: "{search_term}" found')
+                raise Exception(
+                    f'no questions with search term: "{search_term}" found')
 
             questions = [question.format() for question in questions]
             current_cat = questions[0]['category']
@@ -124,7 +130,8 @@ def create_app(test_config=None):
             total_q = len(questions)
             if total_q == 0:
                 not_found = True
-                raise Exception(f'Questions for category with id {category_id} not found')
+                raise Exception(
+                    f'Questions for category with id {category_id} not found')
 
             questions = [question.format() for question in questions]
 
@@ -153,9 +160,12 @@ def create_app(test_config=None):
         try:
             cat_id = quiz_cat['id']
             if cat_id == 0:
-                questions = [question.format() for question in Question.query.all() if question.id not in prev_qs_ids]
+                questions = [question.format() for question in
+                             Question.query.all() if
+                             question.id not in prev_qs_ids]
             else:
-                questions = [question.format() for question in Question.query.filter_by(category=cat_id).all()
+                questions = [question.format() for question in
+                             Question.query.filter_by(category=cat_id).all()
                              if question.id not in prev_qs_ids]
 
             if len(questions) == 0:
@@ -163,7 +173,7 @@ def create_app(test_config=None):
 
             question = random.choice(questions)
 
-        except:
+        except Exception:
             abort(422)
 
         return jsonify({'success': True,

@@ -14,7 +14,8 @@ class TriviaTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
-        self.database_path = "postgres://postgres:demo@{}/{}".format('localhost:5432', self.database_name)
+        self.database_path = "postgres://postgres:demo@{}/{}".format(
+            'localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
 
         # binds the app to the current context
@@ -44,9 +45,11 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['categories'])
 
     def test_delete_question(self):
-        new_q = Question(question='why?', answer='because', difficulty=5, category=1)
+        new_q = Question(question='why?', answer='because', difficulty=5,
+                         category=1)
         new_q.insert()
-        q_id = Question.query.filter_by(question='why?', answer='because').first().id
+        q_id = Question.query.filter_by(question='why?',
+                                        answer='because').first().id
 
         res = self.client().delete(f'/questions/{q_id}')
         data = json.loads(res.data)
@@ -58,16 +61,19 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['success'])
 
     def test_add_question(self):
-        questions_to_delete = Question.query.filter_by(question='when?', answer='now').all()
+        questions_to_delete = Question.query.filter_by(question='when?',
+                                                       answer='now').all()
         if len(questions_to_delete) > 0:
             [question.delete() for question in questions_to_delete]
 
-        new_q = Question(question='when?', answer='now', difficulty=5, category=1)
+        new_q = Question(question='when?', answer='now', difficulty=5,
+                         category=1)
 
         res = self.client().post(f'/questions', json=new_q.format())
         data = json.loads(res.data)
 
-        question = Question.query.filter_by(question='when?', answer='now').one_or_none()
+        question = Question.query.filter_by(question='when?',
+                                            answer='now').one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(question.id)
@@ -104,7 +110,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['success'])
 
     def test_400_bad_add_question(self):
-        res = self.client().post('/questions', json={'question': 'Is this enough?'})
+        res = self.client().post('/questions',
+                                 json={'question': 'Is this enough?'})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
